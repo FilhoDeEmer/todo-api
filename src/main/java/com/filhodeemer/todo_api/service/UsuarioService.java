@@ -4,23 +4,30 @@ import com.filhodeemer.todo_api.exception.RecursoNaoEncontradoException;
 import com.filhodeemer.todo_api.model.Usuario;
 import com.filhodeemer.todo_api.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+
 @Service
 public class UsuarioService {
-
+    private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository repository;
 
-    public UsuarioService(UsuarioRepository repository) {
+    public UsuarioService(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
-
     public List<Usuario> listar() {
         return repository.findAll();
     }
 
     public Usuario adicionar(Usuario usuario) {
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
+        if (usuario.getRole() == null) {
+            usuario.setRole("USER");
+        }
         return repository.save(usuario);
     }
 
